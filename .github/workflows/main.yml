@@ -40,5 +40,5 @@ jobs:
           # Delete each preview environment variable
           for VAR in $PREVIEW_VARS; do
              echo "Deleting environment variable $VAR for branch $BRANCH_NAME."
-             vercel env rm "$VAR" --environment=preview --git-branch "$BRANCH_NAME" --yes --token "$VERCEL_TOKEN"
+             vercel env rm "$VAR" preview "$BRANCH_NAME" --yes --token "$VERCEL_TOKEN"
           done
