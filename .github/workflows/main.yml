@@ -1,0 +1,44 @@
+name: Delete Vercel Environment Variables
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+on:
+  delete:
+    branches:
+      - '**'
+
+jobs:
+  delete-env-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+        
+      - name: Remove Vercel Environment Variables
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          BRANCH_NAME=${{ github.event.ref }}
+          # Remove 'refs/heads/' prefix if present
+          BRANCH_NAME=${BRANCH_NAME#refs/heads/}
+          echo "Fetching environment variables for branch $BRANCH_NAME"
+          
+          # Fetch environment variables and store in a variable
+          ENV_VARS=$(vercel env ls --yes --environment=preview --git-branch $BRANCH_NAME --token $VERCEL_TOKEN)
+          echo "Environment Variables: $ENV_VARS"
+
+          # Use grep to filter for variables specific to the branch
+          # Extracting only those environment variables that are associated with the preview environment for the given branch
+          PREVIEW_VARS=$(echo "$ENV_VARS" | grep "$BRANCH_NAME" | awk '{print $1}')
+
+          if [ -z "$PREVIEW_VARS" ]; then
+            echo "No preview environment variables found to delete."
+            exit 0
+          fi
+
+          # Delete each preview environment variable
+          for VAR in $PREVIEW_VARS; do
+             echo "Deleting environment variable $VAR for branch $BRANCH_NAME."
+             vercel env rm "$VAR" --environment=preview --git-branch "$BRANCH_NAME" --yes --token "$VERCEL_TOKEN"
+          done
