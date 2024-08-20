@@ -1,4 +1,4 @@
-name: Delete Vercel Environment Variables
+name: Delete Branch-Specific Environment Variables
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -15,7 +15,7 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
         
-      - name: Remove Vercel Environment Variables
+      - name: Remove Environment Variables
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
