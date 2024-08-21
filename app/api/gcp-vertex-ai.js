@@ -17,7 +17,7 @@ const GCP_SERVICE_ACCOUNT_EMAIL = process.env.GCP_SERVICE_ACCOUNT_EMAIL;
 const GCP_WORKLOAD_IDENTITY_POOL_ID = process.env.GCP_WORKLOAD_IDENTITY_POOL_ID;
 const GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID =
   process.env.GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID;
-const GOOGLE_TASKS_LOCATION = 'us-central1';
+const GOOGLE_TASKS_LOCATION = "us-central1";
 
 // Initialize the External Account Client
 const authClient = ExternalAccountClient.fromJSON({
