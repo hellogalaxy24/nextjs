@@ -1,18 +1,27 @@
-import { getVercelOidcToken } from '@vercel/functions/oidc';
+// taskManagerTest.js
+import { CloudTasksClient } from "@google-cloud/tasks";
+// import { TaskRouter } from "./taskRouter.js";
+// import { Task } from "./task.js";
+import { getVercelOidcToken } from "@vercel/functions/oidc";
 import { ExternalAccountClient } from 'google-auth-library';
-import { createVertex } from '@ai-sdk/google-vertex';
-import { generateText } from 'ai';
- 
+// import dotenv from "dotenv";
+// // import logger from "../logger.js";
+
+// // Define the environment variables
+// dotenv.config({ path: ".env" });
+
+// Define the GCP environment variables
 const GCP_PROJECT_ID = process.env.GCP_PROJECT_ID;
 const GCP_PROJECT_NUMBER = process.env.GCP_PROJECT_NUMBER;
 const GCP_SERVICE_ACCOUNT_EMAIL = process.env.GCP_SERVICE_ACCOUNT_EMAIL;
 const GCP_WORKLOAD_IDENTITY_POOL_ID = process.env.GCP_WORKLOAD_IDENTITY_POOL_ID;
 const GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID =
   process.env.GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID;
- 
+const GOOGLE_TASKS_LOCATION = 'us-central1';
+
 // Initialize the External Account Client
 const authClient = ExternalAccountClient.fromJSON({
-  type: 'external_account',
+  type: "external_account",
   audience: `//iam.googleapis.com/projects/${GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${GCP_WORKLOAD_IDENTITY_POOL_ID}/providers/${GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID}`,
   subject_token_type: 'urn:ietf:params:oauth:token-type:jwt',
   token_url: 'https://sts.googleapis.com/v1/token',
@@ -22,21 +31,16 @@ const authClient = ExternalAccountClient.fromJSON({
     getSubjectToken: getVercelOidcToken,
   },
 });
- 
-const vertex = createVertex({
+
+// Export the GCP credentials
+const gcpCredentials = {
   project: GCP_PROJECT_ID,
-  location: 'us-central1',
+  location: GOOGLE_TASKS_LOCATION,
   googleAuthOptions: {
     authClient,
-    projectId: GCP_PROJECT_ID,
-  },
-});
- 
-// Export the route handler
-export const GET = async (req: Request) => {
-  const result = generateText({
-    model: vertex('gemini-1.5-flash'),
-    prompt: 'Write a vegetarian lasagna recipe for 4 people.',
-  });
-  return Response.json(result);
+    projectId: GCP_PROJECT_ID
+  }
 };
+
+let client = new CloudTasksClient( {credentials: gcpCredentials });
+client.createQueue({parent: `projects/${GCP_PROJECT_ID}/locations/${GOOGLE_TASKS_LOCATION}`, queue: {name: "test-queue"}});
