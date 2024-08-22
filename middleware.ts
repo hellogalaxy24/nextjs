@@ -6,7 +6,7 @@ const MAINTENANCE_MODE = true
 
 export function middleware(request: NextRequest) {
   if (MAINTENANCE_MODE) {
-    return NextResponse.rewrite(new URL('/maintenance', request.url))
+    return NextResponse.rewrite(new URL('/maintainance', request.url))
   }
 }
 
